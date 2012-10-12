@@ -212,6 +212,8 @@ var canvas = document.getElementById("canvas"),
     x, y;
 
 //creates circlular bounds
+
+
 while(i) {
   do {
     x = Math.random() - 0.5
