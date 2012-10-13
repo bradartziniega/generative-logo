@@ -1,4 +1,0 @@
-generative-logo
-===============
-
-generative logo
