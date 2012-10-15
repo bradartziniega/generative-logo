@@ -5,10 +5,11 @@ html, body {
 
 #canvas {
 
+
     display: block;
     margin: 0 auto;
     background: #455973;
-
+    padding-top: 50px;
 }
 
 #fullpage{

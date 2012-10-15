@@ -12,53 +12,58 @@ var hexagon = {
   drawEverything: function(){ 
     var canvas = document.getElementById("canvas"),
       ctx = canvas.getContext("2d"),
+      number_master_triangles = 2,
       i = this.numVertices,
+      triangle_master_array = new Array(number_master_triangles),
+      triangles_master = {},
       vertices = new Array(i),
       x, y;
+
+      triangles_master.vertices = [];
+      triangle_master_array[0] = triangles_master;
+      triangle_master_array[1] = triangles_master;
 
     var angle = 60*Math.PI/180;
     var l = (canvas.height/(2*Math.cos(angle)+1));
 
     //creates circlular bounds
-    //push the 6 points into vertices array..then randomly populate inside?
+    //setting hexagon outline
+    for(var j=0;j<number_master_triangles;j++){
 
-    vertices[0] = {x: 0.5*canvas.width, y: 0};
-    vertices[1] = {x: 0.5*canvas.width + l*Math.sin(angle), y: l*Math.cos(angle) };
-    vertices[2] = {x: 0.5*canvas.width + l*Math.sin(angle), y: l*Math.cos(angle)+l};
-    vertices[3] = {x: 0.5*canvas.width, y: canvas.height};
-    vertices[4] = {x: 0.5*canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)+l};
-    vertices[5] = {x: 0.5*canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)};
-  
-    //for inside poly test
-    poly_points = [vertices[0],vertices[1],vertices[2],vertices[3],vertices[4],vertices[5]];
+      triangle_master_array[j].vertices[0] = {x: 0.5*canvas.width, y: 0};
+      triangle_master_array[j].vertices[1] = {x: 0.5*canvas.width + l*Math.sin(angle), y: l*Math.cos(angle) };
+      triangle_master_array[j].vertices[2] = {x: 0.5*canvas.width + l*Math.sin(angle), y: l*Math.cos(angle)+l};
+      triangle_master_array[j].vertices[3] = {x: 0.5*canvas.width, y: canvas.height};
+      triangle_master_array[j].vertices[4] = {x: 0.5*canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)+l};
+      triangle_master_array[j].vertices[5] = {x: 0.5*canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)};
+    
+      poly_points = [triangle_master_array[j].vertices[0],triangle_master_array[j].vertices[1],triangle_master_array[j].vertices[2],triangle_master_array[j].vertices[3],triangle_master_array[j].vertices[4],triangle_master_array[j].vertices[5]];
 
-    var numPoints = 0;
+      var numPoints = 0;
 
-    while(numPoints<3){
+      while(numPoints<3){
 
-      curPoint = {x: 0, y: 0};
+        curPoint = {x: 0, y: 0};
+        while(!this.isPointInPoly(poly_points,curPoint)){
+          curPoint = {x: 0.5*canvas.width-400 + Math.floor(Math.random()*800), y: 0.5*canvas.width-400 + Math.floor(Math.random()*800)};
+        }
 
-      while(!this.isPointInPoly(poly_points,curPoint)){
-
-        curPoint = {x: 0.5*canvas.width-400 + Math.floor(Math.random()*800), y: 0.5*canvas.width-400 + Math.floor(Math.random()*800)};
-
+        triangle_master_array[j].vertices[6+numPoints] = curPoint;
+        numPoints++;
       }
 
-      vertices[6+numPoints] = curPoint;
-      numPoints++;
 
+      console.time("triangulate")
+      triangle_master_array[j].triangles = this.triangulate(triangle_master_array[j].vertices);
+
+      console.timeEnd("triangulate")
+
+      i = triangle_master_array[j].triangles.length;
+      console.log ("#Triangles: " + i);
+      while(i)
+        this.drawTriangle(triangle_master_array[j].triangles[--i],ctx,i,triangle_master_array[j].triangles.length);
     }
-
-    console.time("triangulate")
-    var triangles = this.triangulate(vertices);
-
-    console.timeEnd("triangulate")
-
-    i = triangles.length;
-    console.log ("#Triangles: " + i);
-    while(i)
-      this.drawTriangle(triangles[--i],ctx,i,triangles.length);
-      //triangles[--i].draw(ctx,i,triangles.length);
+    
   },
 
   isPointInPoly: function(poly, pt){
@@ -129,19 +134,19 @@ var hexagon = {
     var randomnumber2 = Math.floor(Math.random()*this.defaultColors.length);
 
 
-    lingrad.addColorStop(0,this.defaultColors[randomnumber]);
-    lingrad.addColorStop(1,this.defaultColors[randomnumber2]);
-    ctx.fillStyle = lingrad;
-    //ctx.fillStyle   = this.defaultColors[randomnumber];
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 1;
+    //lingrad.addColorStop(0,this.defaultColors[randomnumber]);
+    //lingrad.addColorStop(1,this.defaultColors[randomnumber2]);
+    //ctx.fillStyle = lingrad;
+    ctx.fillStyle   = this.defaultColors[randomnumber];
+   
+    ctx.strokeStyle
     ctx.beginPath();
     ctx.moveTo(curTriangle.a.x, curTriangle.a.y);
     ctx.lineTo(curTriangle.b.x, curTriangle.b.y);
     ctx.lineTo(curTriangle.c.x, curTriangle.c.y);
     ctx.fill();
     ctx.closePath();
-    ctx.stroke();
+    //ctx.stroke();
 
   },
 
