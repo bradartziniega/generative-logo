@@ -125,7 +125,7 @@ var hexagon = {
 
   drawTriangle: function(curTriangle,ctx,index,length){
 
-    colorValue = this.map(index, 0, length, 0, 255);
+   //colorValue = this.map(index, 0, length, 0, 255);
     //hexColorValue = this.rgbToHex(colorValue,colorValue,colorValue);
 
     var lingrad = ctx.createLinearGradient(curTriangle.a.x,curTriangle.a.y,curTriangle.b.x,curTriangle.b.y);
@@ -138,13 +138,14 @@ var hexagon = {
     //lingrad.addColorStop(1,this.defaultColors[randomnumber2]);
     //ctx.fillStyle = lingrad;
     ctx.fillStyle   = this.defaultColors[randomnumber];
-   
-    ctx.strokeStyle
+    //ctx.strokeStyle = this.defaultColors[randomnumber];
+    //ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(curTriangle.a.x, curTriangle.a.y);
     ctx.lineTo(curTriangle.b.x, curTriangle.b.y);
     ctx.lineTo(curTriangle.c.x, curTriangle.c.y);
     ctx.fill();
+    //ctx.stroke();
     ctx.closePath();
     //ctx.stroke();
 
