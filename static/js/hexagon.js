@@ -2,6 +2,12 @@ var hexagon = {
 
   numVertices: 6,
   pointObj: {'x':0, 'y':0},
+  defaultColors: ["rgba(183,61,129,0.75)","rgba(132,32,92,0.75)","rgba(197,128,177,0.5)","rgba(156,52,110,0.66)","rgba(56,167,123,0.8)","rgba(66,196,144,0.5)","rgba(68,204,192,0.4)","rgba(144,199,203,0.6)","rgba(78,206,155,0.8)"],
+
+  init: function(){
+
+
+  },
 
   drawEverything: function(){ 
     var canvas = document.getElementById("canvas"),
@@ -10,32 +16,61 @@ var hexagon = {
       vertices = new Array(i),
       x, y;
 
+    var angle = 60*Math.PI/180;
+    var l = (canvas.height/(2*Math.cos(angle)+1));
+
     //creates circlular bounds
     //push the 6 points into vertices array..then randomly populate inside?
-    
 
-    while(i) {
-      do {
-        x = Math.random() - 0.5
-        y = Math.random() - 0.5
-      } while(x * x + y * y > 0.25)
+    vertices[0] = {x: 0.5*canvas.width, y: 0};
+    vertices[1] = {x: 0.5*canvas.width + l*Math.sin(angle), y: l*Math.cos(angle) };
+    vertices[2] = {x: 0.5*canvas.width + l*Math.sin(angle), y: l*Math.cos(angle)+l};
+    vertices[3] = {x: 0.5*canvas.width, y: canvas.height};
+    vertices[4] = {x: 0.5*canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)+l};
+    vertices[5] = {x: 0.5*canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)};
+  
+    //for inside poly test
+    poly_points = [vertices[0],vertices[1],vertices[2],vertices[3],vertices[4],vertices[5]];
 
-      x = (x * 0.96875 + 0.5) * canvas.width
-      y = (y * 0.96875 + 0.5) * canvas.height
+    var numPoints = 0;
 
-      vertices[--i] = {x: x, y: y};
+    while(numPoints<3){
+
+      curPoint = {x: 0, y: 0};
+
+      while(!this.isPointInPoly(poly_points,curPoint)){
+
+        curPoint = {x: 0.5*canvas.width-400 + Math.floor(Math.random()*800), y: 0.5*canvas.width-400 + Math.floor(Math.random()*800)};
+
+      }
+
+      vertices[6+numPoints] = curPoint;
+      numPoints++;
 
     }
 
     console.time("triangulate")
-    var triangles = this.triangulate(vertices)
+    var triangles = this.triangulate(vertices);
+
     console.timeEnd("triangulate")
 
-    i = triangles.length
+    i = triangles.length;
+    console.log ("#Triangles: " + i);
     while(i)
       this.drawTriangle(triangles[--i],ctx,i,triangles.length);
       //triangles[--i].draw(ctx,i,triangles.length);
   },
+
+  isPointInPoly: function(poly, pt){
+    for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
+        ((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y))
+        && (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)
+        && (c = !c);
+    return c;
+  },
+
+
+  
 
   getInfo: function(){
 
@@ -79,40 +114,25 @@ var hexagon = {
       dy = this.y - a.y
       this.r = dx * dx + dy * dy
     }
-    /*
-    function draw(ctx,index,length){
-      colorValue = map(index, 0, length, 0, 255);
-      hexColorValue = rgbToHex(colorValue,colorValue,colorValue);
-
-      var lingrad = ctx.createLinearGradient(this.a.x,this.a.y,this.b.x,this.b.y);
-      lingrad.addColorStop(0,'#000');
-      lingrad.addColorStop(1,'#fff');
-
-      ctx.fillStyle   = lingrad;
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(this.a.x, this.a.y);
-      ctx.lineTo(this.b.x, this.b.y);
-      ctx.lineTo(this.c.x, this.c.y);
-      ctx.fill();
-      ctx.closePath();
-      ctx.stroke();
-    }
-    */
+    
 
   },
 
   drawTriangle: function(curTriangle,ctx,index,length){
 
     colorValue = this.map(index, 0, length, 0, 255);
-    hexColorValue = this.rgbToHex(colorValue,colorValue,colorValue);
+    //hexColorValue = this.rgbToHex(colorValue,colorValue,colorValue);
 
     var lingrad = ctx.createLinearGradient(curTriangle.a.x,curTriangle.a.y,curTriangle.b.x,curTriangle.b.y);
-    lingrad.addColorStop(0,'#F2AA80');
-    lingrad.addColorStop(1,'#AE7866');
 
-    ctx.fillStyle   = lingrad;
+    var randomnumber=Math.floor(Math.random()*this.defaultColors.length);
+    var randomnumber2 = Math.floor(Math.random()*this.defaultColors.length);
+
+
+    lingrad.addColorStop(0,this.defaultColors[randomnumber]);
+    lingrad.addColorStop(1,this.defaultColors[randomnumber2]);
+    ctx.fillStyle = lingrad;
+    //ctx.fillStyle   = this.defaultColors[randomnumber];
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 1;
     ctx.beginPath();
