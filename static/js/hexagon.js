@@ -4,12 +4,10 @@ var hexagon = {
   pointObj: {'x':0, 'y':0},
   defaultColors: ["rgba(183,61,129,0.75)","rgba(132,32,92,0.75)","rgba(197,128,177,0.5)","rgba(156,52,110,0.66)","rgba(56,167,123,0.8)","rgba(66,196,144,0.5)","rgba(68,204,192,0.4)","rgba(144,199,203,0.6)","rgba(78,206,155,0.8)"],
 
-  init: function(){
-
-
-  },
+  
 
   drawEverything: function(){ 
+
     var canvas = document.getElementById("canvas"),
       ctx = canvas.getContext("2d"),
       number_master_triangles = 2,
