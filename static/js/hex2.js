@@ -7,12 +7,17 @@ HEX.ctx = 0;
 HEX.buffer = 0;
 HEX.initialized = false;
 
+HEX.poly_points = new Array();
+HEX.padded_points = new Array();
+
 HEX.triangle_master_array = new Array();
 
+
 HEX.constants = {
+  padded_distance: 150,
   numVertices: 6,
   number_master_triangles: 2,
-  number_internal_points: 3,
+  number_internal_points: 2,
   defaultColors: ["rgba(183,61,129,0.75)","rgba(132,32,92,0.75)","rgba(197,128,177,0.5)","rgba(156,52,110,0.66)","rgba(56,167,123,0.8)","rgba(66,196,144,0.5)","rgba(68,204,192,0.4)","rgba(144,199,203,0.6)","rgba(78,206,155,0.8)"],
 }
 
@@ -38,6 +43,8 @@ HEX.init = function(){
 
 };
 
+
+
 HEX.createPoints = function(){
 
   var angle = 60*Math.PI/180;
@@ -46,21 +53,32 @@ HEX.createPoints = function(){
   //setting hexagon outline
   for(var j=0;j<HEX.constants.number_master_triangles;j++){
 
+    l = (canvas.height/(2*Math.cos(angle)+1));
+
     HEX.triangle_master_array[j].vertices[0] = {x: 0.5*HEX.canvas.width, y: 0};
     HEX.triangle_master_array[j].vertices[1] = {x: 0.5*HEX.canvas.width + l*Math.sin(angle), y: l*Math.cos(angle) };
     HEX.triangle_master_array[j].vertices[2] = {x: 0.5*HEX.canvas.width + l*Math.sin(angle), y: l*Math.cos(angle)+l};
     HEX.triangle_master_array[j].vertices[3] = {x: 0.5*HEX.canvas.width, y: HEX.canvas.height};
     HEX.triangle_master_array[j].vertices[4] = {x: 0.5*HEX.canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)+l};
     HEX.triangle_master_array[j].vertices[5] = {x: 0.5*HEX.canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)};
-  
-    poly_points = [HEX.triangle_master_array[j].vertices[0],HEX.triangle_master_array[j].vertices[1],HEX.triangle_master_array[j].vertices[2],HEX.triangle_master_array[j].vertices[3],HEX.triangle_master_array[j].vertices[4],HEX.triangle_master_array[j].vertices[5]];
+    HEX.poly_points = [HEX.triangle_master_array[j].vertices[0],HEX.triangle_master_array[j].vertices[1],HEX.triangle_master_array[j].vertices[2],HEX.triangle_master_array[j].vertices[3],HEX.triangle_master_array[j].vertices[4],HEX.triangle_master_array[j].vertices[5]];
+
+
+    //defining internal padded hexagon
+    l = ((canvas.height - 2*HEX.constants.padded_distance)/(2*Math.cos(angle)+1));
+    HEX.padded_points[0] = {x: 0.5*HEX.canvas.width, y: HEX.constants.padded_distance};
+    HEX.padded_points[1] = {x: 0.5*HEX.canvas.width + l*Math.sin(angle), y: HEX.constants.padded_distance+l*Math.cos(angle) };
+    HEX.padded_points[2] = {x: 0.5*HEX.canvas.width + l*Math.sin(angle), y: HEX.constants.padded_distance+l*Math.cos(angle)+l};
+    HEX.padded_points[3] = {x: 0.5*HEX.canvas.width, y: HEX.canvas.height - HEX.constants.padded_distance};
+    HEX.padded_points[4] = {x: 0.5*HEX.canvas.width - l*Math.sin(angle), y: HEX.constants.padded_distance+l*Math.cos(angle)+l};
+    HEX.padded_points[5] = {x: 0.5*HEX.canvas.width - l*Math.sin(angle), y: HEX.constants.padded_distance+l*Math.cos(angle)};  
 
     var numPoints = 0;
 
     while(numPoints<HEX.constants.number_internal_points){
 
       curPoint = {x: 0, y: 0};
-      while(!HEX.isPointInPoly(poly_points,curPoint)){
+      while(/*!HEX.isPointInPoly(HEX.poly_points,curPoint) &&*/ !HEX.isPointInPoly(HEX.padded_points,curPoint)){
         curPoint = {x: 0.5*HEX.canvas.width-400 + Math.floor(Math.random()*800), y: 0.5*HEX.canvas.width-400 + Math.floor(Math.random()*800)};
       }
 
@@ -71,6 +89,14 @@ HEX.createPoints = function(){
 
     console.time("triangulate");
     HEX.triangle_master_array[j].triangles = HEX.triangulate(HEX.triangle_master_array[j].vertices);
+
+    for(var i=0;i<HEX.triangle_master_array[j].triangles.length;i++){
+
+      HEX.triangle_master_array[j].triangles[i].color = HEX.constants.defaultColors[Math.floor(Math.random()*HEX.constants.defaultColors.length)];
+
+
+    }
+
     console.timeEnd("triangulate");
 
   }
@@ -81,7 +107,7 @@ HEX.createPoints = function(){
 HEX.update = function() {
 
   if(HEX.controller) {
-    HEX.updateGeometry();
+    //HEX.updateGeometry();
     HEX.draw();
   }
   //requestAnimationFrame( HEX.update() );
@@ -92,7 +118,19 @@ HEX.update = function() {
 //update the triangles being drawn
 HEX.updateGeometry = function(){
 
+  HEX.ctx.clearRect(0,0,HEX.width,HEX.height);
 
+  for(var j=0;j<HEX.constants.number_master_triangles;j++){
+
+    for(var k=0;k<HEX.triangle_master_array[j].triangles.length;k++){
+
+      current_triangle = HEX.triangle_master_array[j].triangles[k];
+      current_triangle.a.x+=0.5;
+      current_triangle.a.y+=0.5;
+
+    }
+
+  }
 };
   
 HEX.draw = function(){
@@ -106,16 +144,8 @@ HEX.draw = function(){
     for(var j=0;j<HEX.triangle_master_array[i].triangles.length;j++){
 
       current_triangle = HEX.triangle_master_array[i].triangles[j];
-      //console.log(current_triangle.a.x);
-      var lingrad = HEX.ctx.createLinearGradient(current_triangle.a.x,current_triangle.a.y,current_triangle.b.x,current_triangle.b.y);
-      var randomnumber = Math.floor(Math.random()*HEX.constants.defaultColors.length);
-      var randomnumber2 = Math.floor(Math.random()*HEX.constants.defaultColors.length);
 
-      //lingrad.addColorStop(0,this.defaultColors[randomnumber]);
-      //lingrad.addColorStop(1,this.defaultColors[randomnumber2]);
-      //ctx.fillStyle = lingrad;
-
-      HEX.ctx.fillStyle   = HEX.constants.defaultColors[randomnumber];
+      HEX.ctx.fillStyle   = current_triangle.color;
       HEX.ctx.beginPath();
       HEX.ctx.moveTo(current_triangle.a.x, current_triangle.a.y);
       HEX.ctx.lineTo(current_triangle.b.x, current_triangle.b.y);
@@ -127,7 +157,22 @@ HEX.draw = function(){
 
 
   }
-  
+
+  /*
+  HEX.ctx.fillStyle = "rgba(0,0,255,0.9)";
+  HEX.ctx.beginPath();
+  HEX.ctx.moveTo(HEX.padded_points[0].x, HEX.padded_points[0].y);
+  HEX.ctx.lineTo(HEX.padded_points[1].x, HEX.padded_points[1].y);
+  HEX.ctx.lineTo(HEX.padded_points[2].x, HEX.padded_points[2].y);
+  HEX.ctx.lineTo(HEX.padded_points[3].x, HEX.padded_points[3].y);
+  HEX.ctx.lineTo(HEX.padded_points[4].x, HEX.padded_points[4].y);
+  HEX.ctx.lineTo(HEX.padded_points[5].x, HEX.padded_points[5].y);
+  HEX.ctx.lineTo(HEX.padded_points[0].x, HEX.padded_points[0].y);
+  HEX.ctx.fill();
+  HEX.ctx.closePath();
+  */
+    
+    
 
 };
 
@@ -160,6 +205,7 @@ HEX.Triangle = function(a,b,c){
   /* If the points of the triangle are collinear, then just find the
    * extremes and use the midpoint as the center of the circumcircle. */
   if(Math.abs(G) < 0.000001) {
+
     minx = Math.min(a.x, b.x, c.x)
     miny = Math.min(a.y, b.y, c.y)
     dx   = (Math.max(a.x, b.x, c.x) - minx) * 0.5
@@ -168,6 +214,7 @@ HEX.Triangle = function(a,b,c){
     this.x = minx + dx
     this.y = miny + dy
     this.r = dx * dx + dy * dy
+
   }
 
   else {
