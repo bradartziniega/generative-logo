@@ -8,9 +8,10 @@
     <div id="space">
     <canvas id="canvas" width="800" height="800" ></canvas>
     </div>
-
+    <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
     <script type="text/javascript" src="js/hex2.js"></script>
     <script type = "text/javascript">
+
     window.requestAnimFrame = (function(){   
       return window.requestAnimationFrame  ||    
       window.webkitRequestAnimationFrame ||    
@@ -28,8 +29,10 @@
       HEX.update();
     };
 
+    $(function(){
 		HEX.init();	
     animate();
+    });    
 
     </script>
 

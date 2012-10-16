@@ -16,11 +16,13 @@ HEX.triangle_master_array = new Array();
 HEX.constants = {
   padded_distance: 100,
   numVertices: 6,
-  number_master_triangles: 1,
+  number_master_triangles: 3,
   number_internal_points: 2,
   initAnim: false,
   fraction: 0,
-  defaultColors: ["rgba(183,61,129,0.75)","rgba(132,32,92,0.75)","rgba(197,128,177,0.5)","rgba(156,52,110,0.66)","rgba(56,167,123,0.8)","rgba(66,196,144,0.5)","rgba(68,204,192,0.4)","rgba(144,199,203,0.6)","rgba(78,206,155,0.8)"],
+  //defaultColors: ["rgba(183,61,129,0.75)","rgba(132,32,92,0.75)","rgba(197,128,177,0.5)","rgba(156,52,110,0.66)","rgba(56,167,123,0.8)","rgba(66,196,144,0.5)","rgba(68,204,192,0.4)","rgba(144,199,203,0.6)","rgba(78,206,155,0.8)"],
+  defaultColors: ["rgba(183,61,129,1)","rgba(132,32,92,1)","rgba(197,128,177,1)","rgba(156,52,110,1)","rgba(56,167,123,1)","rgba(66,196,144,1)","rgba(68,204,192,1)","rgba(144,199,203,1)","rgba(78,206,155,1)"],
+
 }
 
 HEX.init = function(){
@@ -37,7 +39,7 @@ HEX.init = function(){
   HEX.controller = 1;
 
   for(var i=0;i<HEX.constants.number_master_triangles;i++){
-    HEX.triangle_master_array[i] = {vertices:[], vertices_beneath:[], static_triangles:[  ] };
+    HEX.triangle_master_array[i] = {vertices:[], vertices_beneath:[], static_triangles:[] };
   }
 
   HEX.createPoints();
@@ -99,12 +101,8 @@ HEX.createPoints = function(){
     for(var i=0;i<HEX.triangle_master_array[j].triangles.length;i++){
 
       HEX.triangle_master_array[j].triangles[i].color = HEX.constants.defaultColors[Math.floor(Math.random()*HEX.constants.defaultColors.length)];
-      
       HEX.triangle_master_array[j].static_triangles[i] = {};
 
-       HEX.triangle_master_array[j].static_triangles[i].a = HEX.triangle_master_array[j].triangles[i].a;
-       HEX.triangle_master_array[j].static_triangles[i].b = HEX.triangle_master_array[j].triangles[i].b;
-       HEX.triangle_master_array[j].static_triangles[i].c = HEX.triangle_master_array[j].triangles[i].c;
 
 
     }
@@ -135,78 +133,63 @@ HEX.updateGeometry = function(){
 
   if(!HEX.initAnim){
 
-    for(var i=0;i<HEX.triangle_master_array[currentMod].triangles.length;i++){
+    for(var j=0;j<HEX.triangle_master_array.length;j++){
+      for(var i=0;i<HEX.triangle_master_array[j].triangles.length;i++){
 
-      current_triangle = HEX.triangle_master_array[currentMod].triangles[i];
+        current_triangle = HEX.triangle_master_array[j].triangles[i];
 
-      if(HEX.isPointInPoly(HEX.padded_points,current_triangle.a)){
+        if(HEX.isPointInPoly(HEX.padded_points,current_triangle.a)){
 
-        // HEX.ctx.fillStyle = "rgb(0,0,255)";
-        // HEX.ctx.beginPath();
-        // HEX.ctx.arc(current_triangle.a.x,current_triangle.a.y,5,0,2*Math.PI,true);
-        // HEX.ctx.fill();
-        // HEX.ctx.closePath();
+          current_triangle.pointTravelFrom = current_triangle.a;
+          current_triangle.pointTravelFrom_index = "a";
 
-        current_triangle.pointTravelFrom = current_triangle.a;
-        current_triangle.pointTravelFrom_index = "a";
+        }
 
-      }
+        else{
 
-      else{
+          current_triangle.pointTravelTo = current_triangle.a;
+          current_triangle.pointTravelTo_index = "a";
 
-        current_triangle.pointTravelTo = current_triangle.a;
-        current_triangle.pointTravelTo_index = "a";
-
-      }
+        }
 
 
 
-      if(HEX.isPointInPoly(HEX.padded_points,current_triangle.b)){
+        if(HEX.isPointInPoly(HEX.padded_points,current_triangle.b)){
 
-        // HEX.ctx.fillStyle = "rgb(255,0,0)";
-        // HEX.ctx.beginPath();
-        // HEX.ctx.arc(current_triangle.b.x,current_triangle.b.y,5,0,2*Math.PI,true);
-        // HEX.ctx.fill();
-        // HEX.ctx.closePath();
+          current_triangle.pointTravelFrom = current_triangle.b;
+          current_triangle.pointTravelFrom_index = "b";
 
-        current_triangle.pointTravelFrom = current_triangle.b;
-        current_triangle.pointTravelFrom_index = "b";
+        }
 
-      }
-
-      else{
-      
-        current_triangle.pointTravelTo = current_triangle.b;
-        current_triangle.pointTravelTo_index = "b";
-
-      }
-
-
-      if(HEX.isPointInPoly(HEX.padded_points,current_triangle.c)){
-
+        else{
         
-        // HEX.ctx.fillStyle = "rgb(0,255,0)";
-        // HEX.ctx.beginPath();
-        // HEX.ctx.arc(current_triangle.c.x,current_triangle.c.y,5,0,2*Math.PI,true);
-        // HEX.ctx.fill();
-        // HEX.ctx.closePath();
-        
+          current_triangle.pointTravelTo = current_triangle.b;
+          current_triangle.pointTravelTo_index = "b";
 
-        current_triangle.pointTravelFrom = current_triangle.c;
-        current_triangle.pointTravelFrom_index = "c";
+        }
+
+
+        if(HEX.isPointInPoly(HEX.padded_points,current_triangle.c)){
+
+          current_triangle.pointTravelFrom = current_triangle.c;
+          current_triangle.pointTravelFrom_index = "c";
+
+
+        }
+
+        else{
+
+          current_triangle.pointTravelTo = current_triangle.c;
+          current_triangle.pointTravelTo_index = "c";
+
+
+        }
+
+        $.extend(true,HEX.triangle_master_array[j].static_triangles[i], current_triangle);
 
 
       }
-
-      else{
-
-        current_triangle.pointTravelTo = current_triangle.c;
-        current_triangle.pointTravelTo_index = "c";
-
-
-      }
-
-    }
+  }
     HEX.initAnim = true;
   }
 
@@ -216,19 +199,22 @@ HEX.updateGeometry = function(){
 
     for(var i=0;i<HEX.triangle_master_array[currentMod].triangles.length;i++){
 
-      current_triangle = HEX.triangle_master_array[currentMod].triangles[i];
-      
-      if(i==0){
+
+
+        current_triangle = HEX.triangle_master_array[currentMod].static_triangles[i];
+
         //start interpolating from current_triangle.pointTravelFrom --> current_triangle.pointTravelTo
         current_triangle[current_triangle.pointTravelFrom_index].x = HEX.lerp(current_triangle[current_triangle.pointTravelFrom_index].x,current_triangle[current_triangle.pointTravelTo_index].x,HEX.constants.fraction);
-        current_triangle[current_triangle.pointTravelFrom_index].y = HEX.lerp(current_triangle[current_triangle.pointTravelFrom_index].y,current_triangle[current_triangle.pointTravelTo_index].y,HEX.constants.fraction);
+        current_triangle[current_triangle.pointTravelFrom_index].y  = HEX.lerp(current_triangle[current_triangle.pointTravelFrom_index].y,current_triangle[current_triangle.pointTravelTo_index].y,HEX.constants.fraction);
       
-      }
+      
 
 
-    }
+
+   }
 
     if(HEX.constants.fraction<=1.0){
+      
       HEX.constants.fraction+=0.001;
     }
 
@@ -245,29 +231,15 @@ HEX.draw = function(){
 
   HEX.ctx.clearRect(0,0,HEX.width,HEX.height);
 
+
   HEX = this;
 
   for(var i=0;i<HEX.triangle_master_array.length;i++){
 
     for(var j=0;j<HEX.triangle_master_array[i].triangles.length;j++){
 
-      current_triangle = HEX.triangle_master_array[i].triangles[j];
+      current_triangle = HEX.triangle_master_array[i].static_triangles[j];
 
-      if(j==0){
-      
-        HEX.ctx.fillStyle = "rgb(0,255,0)";
-        HEX.ctx.beginPath();
-        HEX.ctx.arc(current_triangle[current_triangle.pointTravelFrom_index].x,current_triangle[current_triangle.pointTravelFrom_index].y,5,0,2*Math.PI,true);
-        HEX.ctx.fill();
-        HEX.ctx.closePath();
-    
-        HEX.ctx.fillStyle = "rgb(0,0,0)";
-        HEX.ctx.beginPath();
-        HEX.ctx.arc(current_triangle[current_triangle.pointTravelTo_index].x,current_triangle[current_triangle.pointTravelTo_index].y,5,0,2*Math.PI,true);
-        HEX.ctx.fill();
-        HEX.ctx.closePath();
-
-      }
 
       HEX.ctx.fillStyle   = current_triangle.color;
       HEX.ctx.beginPath();
@@ -277,6 +249,8 @@ HEX.draw = function(){
       HEX.ctx.fill();
       HEX.ctx.closePath();
 
+      
+      
     }
   }
 };
@@ -293,6 +267,7 @@ HEX.isPointInPoly = function(poly, pt){
 
 
 HEX.Triangle = function(a,b,c){
+
 
   this.a = a
   this.b = b
