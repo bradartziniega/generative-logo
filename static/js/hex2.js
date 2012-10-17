@@ -14,9 +14,9 @@ HEX.triangle_master_array = new Array();
 
 
 HEX.constants = {
-  padded_distance: 100,
+  padded_distance: 1,
   numVertices: 6,
-  number_master_triangles: 3,
+  number_master_triangles: 2,
   number_internal_points: 2,
   initAnim: false,
   fraction: 0,
@@ -36,6 +36,8 @@ HEX.init = function(){
   HEX.width = HEX.canvas.width;
   HEX.height = HEX.canvas.height;
 
+  HEX.constants.padded_distance = HEX.canvas.width/8;
+
   HEX.controller = 1;
 
   for(var i=0;i<HEX.constants.number_master_triangles;i++){
@@ -43,7 +45,6 @@ HEX.init = function(){
   }
 
   HEX.createPoints();
-  //HEX.update();
 
 };
 
@@ -85,15 +86,14 @@ HEX.createPoints = function(){
     while(numPoints<HEX.constants.number_internal_points){
 
       curPoint = {x: 0, y: 0};
-      while(/*!HEX.isPointInPoly(HEX.poly_points,curPoint) &&*/ !HEX.isPointInPoly(HEX.padded_points,curPoint)){
-        curPoint = {x: 0.5*HEX.canvas.width-400 + Math.floor(Math.random()*800), y: 0.5*HEX.canvas.width-400 + Math.floor(Math.random()*800)};
+      while(!HEX.isPointInPoly(HEX.padded_points,curPoint)){
+        curPoint = {x: 0.5*HEX.canvas.width-(HEX.canvas.width/2) + Math.floor(Math.random()*(HEX.canvas.width)), y: 0.5*HEX.canvas.height-(HEX.canvas.height/2) + Math.floor(Math.random()*(HEX.canvas.height))};
       }
 
       HEX.triangle_master_array[j].vertices[6+numPoints] = curPoint;
       numPoints++;
 
     }
-
 
     console.time("triangulate");
     HEX.triangle_master_array[j].triangles = HEX.triangulate(HEX.triangle_master_array[j].vertices);
@@ -103,8 +103,6 @@ HEX.createPoints = function(){
       HEX.triangle_master_array[j].triangles[i].color = HEX.constants.defaultColors[Math.floor(Math.random()*HEX.constants.defaultColors.length)];
       HEX.triangle_master_array[j].static_triangles[i] = {};
 
-
-
     }
 
     console.timeEnd("triangulate");
@@ -113,22 +111,17 @@ HEX.createPoints = function(){
 
 };
 
-
 HEX.update = function() {
 
   if(HEX.controller) {
     HEX.updateGeometry();
     HEX.draw();
-
   }
-  
 };
-
 
 //update the triangles being drawn
 HEX.updateGeometry = function(){
 
-  
   currentMod = HEX.triangle_master_array.length-1;
 
   if(!HEX.initAnim){
@@ -152,8 +145,6 @@ HEX.updateGeometry = function(){
 
         }
 
-
-
         if(HEX.isPointInPoly(HEX.padded_points,current_triangle.b)){
 
           current_triangle.pointTravelFrom = current_triangle.b;
@@ -168,12 +159,10 @@ HEX.updateGeometry = function(){
 
         }
 
-
         if(HEX.isPointInPoly(HEX.padded_points,current_triangle.c)){
 
           current_triangle.pointTravelFrom = current_triangle.c;
           current_triangle.pointTravelFrom_index = "c";
-
 
         }
 
@@ -182,11 +171,10 @@ HEX.updateGeometry = function(){
           current_triangle.pointTravelTo = current_triangle.c;
           current_triangle.pointTravelTo_index = "c";
 
-
         }
 
+        //copy triangle into static triangle to prevent referencing so the triangles can slide open
         $.extend(true,HEX.triangle_master_array[j].static_triangles[i], current_triangle);
-
 
       }
   }
@@ -195,32 +183,20 @@ HEX.updateGeometry = function(){
 
   else{
 
-    //console.log("doing it");
 
     for(var i=0;i<HEX.triangle_master_array[currentMod].triangles.length;i++){
-
-
-
+        
         current_triangle = HEX.triangle_master_array[currentMod].static_triangles[i];
-
-        //start interpolating from current_triangle.pointTravelFrom --> current_triangle.pointTravelTo
         current_triangle[current_triangle.pointTravelFrom_index].x = HEX.lerp(current_triangle[current_triangle.pointTravelFrom_index].x,current_triangle[current_triangle.pointTravelTo_index].x,HEX.constants.fraction);
         current_triangle[current_triangle.pointTravelFrom_index].y  = HEX.lerp(current_triangle[current_triangle.pointTravelFrom_index].y,current_triangle[current_triangle.pointTravelTo_index].y,HEX.constants.fraction);
-      
-      
-
-
-
-   }
-
-    if(HEX.constants.fraction<=1.0){
-      
-      HEX.constants.fraction+=0.001;
+    
     }
 
+    //change from linear -> exponential easing
+    if(HEX.constants.fraction<=1.0){
+      HEX.constants.fraction+=0.001;
+    }
   }
-
-
 };
 
 HEX.lerp = function(a,b,f){
@@ -240,17 +216,16 @@ HEX.draw = function(){
 
       current_triangle = HEX.triangle_master_array[i].static_triangles[j];
 
-
+      //HEX.ctx.strokeStyle = current_triangle.color;
       HEX.ctx.fillStyle   = current_triangle.color;
       HEX.ctx.beginPath();
       HEX.ctx.moveTo(current_triangle.a.x, current_triangle.a.y);
       HEX.ctx.lineTo(current_triangle.b.x, current_triangle.b.y);
       HEX.ctx.lineTo(current_triangle.c.x, current_triangle.c.y);
       HEX.ctx.fill();
+      //HEX.ctx.stroke();
       HEX.ctx.closePath();
 
-      
-      
     }
   }
 };
@@ -263,8 +238,6 @@ HEX.isPointInPoly = function(poly, pt){
       && (c = !c);
   return c;
 };
-
-
 
 HEX.Triangle = function(a,b,c){
 
@@ -306,8 +279,6 @@ HEX.Triangle = function(a,b,c){
   }
   
 };
-
-
 
 HEX.byX = function(a, b) {
   return b.x - a.x
