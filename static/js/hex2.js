@@ -159,45 +159,27 @@ HEX.updateGeometry = function(){
         current_triangle = HEX.triangle_master_array[j].triangles[i];
 
         if(HEX.isPointInPoly(HEX.padded_points,current_triangle.a)){
-
-          current_triangle.pointTravelFrom = current_triangle.a;
           current_triangle.pointTravelFrom_index = "a";
-
         }
 
         else{
-
-          current_triangle.pointTravelTo = current_triangle.a;
           current_triangle.pointTravelTo_index = "a";
-
         }
 
         if(HEX.isPointInPoly(HEX.padded_points,current_triangle.b)){
-
-          current_triangle.pointTravelFrom = current_triangle.b;
           current_triangle.pointTravelFrom_index = "b";
-
         }
 
         else{
-        
-          current_triangle.pointTravelTo = current_triangle.b;
           current_triangle.pointTravelTo_index = "b";
-
         }
 
         if(HEX.isPointInPoly(HEX.padded_points,current_triangle.c)){
-
-          current_triangle.pointTravelFrom = current_triangle.c;
           current_triangle.pointTravelFrom_index = "c";
-
         }
 
         else{
-
-          current_triangle.pointTravelTo = current_triangle.c;
           current_triangle.pointTravelTo_index = "c";
-
         }
 
         //copy triangle into static triangle to prevent referencing so the triangles can slide open
@@ -265,11 +247,13 @@ HEX.draw = function(){
       current_triangle = HEX.triangle_master_array[i].static_triangles[j];
 
       HEX.ctx.fillStyle   = current_triangle.color;
+      //HEX.ctx.strokeStyle = 'white';
       HEX.ctx.beginPath();
       HEX.ctx.moveTo(current_triangle.a.x, current_triangle.a.y);
       HEX.ctx.lineTo(current_triangle.b.x, current_triangle.b.y);
       HEX.ctx.lineTo(current_triangle.c.x, current_triangle.c.y);
       HEX.ctx.fill();
+      //HEX.ctx.stroke();
       HEX.ctx.closePath();
 
     }
