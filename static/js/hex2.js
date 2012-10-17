@@ -4,7 +4,6 @@ HEX.controller = 0;
 HEX.canvas = 0;
 HEX.drawctx = 0;
 HEX.ctx = 0;
-HEX.buffer = 0;
 HEX.initialized = false;
 HEX.poly_points = new Array();
 HEX.padded_points = new Array();
@@ -17,7 +16,9 @@ HEX.constants = {
   number_internal_points: 2,
   initAnim: false,
   fraction: 0,
-  defaultColors: ["rgba(183,61,129,1)","rgba(132,32,92,1)","rgba(197,128,177,1)","rgba(156,52,110,1)","rgba(56,167,123,1)","rgba(66,196,144,1)","rgba(68,204,192,1)","rgba(144,199,203,1)","rgba(78,206,155,1)"],
+  defaultColors: ["rgba(183,61,129,1)","rgba(132,32,92,1)","rgba(197,128,177,1)","rgba(156,52,110,1)","rgba(56,167,123,1)","rgba(66,196,144,1)","rgba(68,204,192,1)","rgba(141,199,203,1)","rgba(78,206,155,1)"
+  ,"rgba(177,107,160,1)","rgba(186,117,167,1)","rgba(58,174,163,1)","rgba(151,91,136,1)","rgba(143,25,91,1)","rgba(169,56,119,1)","rgba(144,97,134,1)"],
+
 }
 
 HEX.init = function(){
@@ -240,12 +241,10 @@ HEX.updateGeometry = function(){
 
       //copy revealed lower layer to top layer
       $.extend(true,HEX.triangle_master_array[topLayer],HEX.triangle_master_array[0]);
-
-      //setTimeout(function(){
-          HEX.initAnim = false;
-          HEX.createIndividualPoints();
-        //},1000);
       
+      HEX.initAnim = false;
+      HEX.createIndividualPoints();
+    
     }
   }
 };
