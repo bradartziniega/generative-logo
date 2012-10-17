@@ -95,7 +95,7 @@ HEX.createPoints = function(){
 
     }
 
-    console.time("triangulate");
+    //console.time("triangulate");
     HEX.triangle_master_array[i].triangles = HEX.triangulate(HEX.triangle_master_array[i].vertices);
 
     for(var j=0;j<HEX.triangle_master_array[i].triangles.length;j++){
@@ -105,15 +105,13 @@ HEX.createPoints = function(){
 
     }
 
-    console.timeEnd("triangulate");
+    //console.timeEnd("triangulate");
 
   }
 
 };
 
 HEX.createIndividualPoints = function(){
-
-  console.log("hit here");
 
   var angle = 60*Math.PI/180;
   var l = (canvas.height/(2*Math.cos(angle)+1));
@@ -159,7 +157,7 @@ HEX.createIndividualPoints = function(){
 
   }
 
-  console.time("triangulate");
+  //console.time("triangulate");
   HEX.triangle_master_array[i].triangles = HEX.triangulate(HEX.triangle_master_array[i].vertices);
 
   for(var j=0;j<HEX.triangle_master_array[i].triangles.length;j++){
@@ -169,11 +167,8 @@ HEX.createIndividualPoints = function(){
 
   }
 
-  console.timeEnd("triangulate");
-  //debugger;
-  //HEX.updateGeometry();
+  //console.timeEnd("triangulate");  
   HEX.update();
-
 
 };
 
@@ -189,8 +184,6 @@ HEX.update = function() {
 HEX.updateGeometry = function(){
 
   if(!HEX.initAnim){
-
-    console.log("resetting animation");
 
     for(var j=0;j<HEX.triangle_master_array.length;j++){
       for(var i=0;i<HEX.triangle_master_array[j].triangles.length;i++){
@@ -267,7 +260,6 @@ HEX.updateGeometry = function(){
       HEX.constants.fraction+=0.01;
     }
     else{
-      console.log("restart");
       
       //reset constant fraction, switch triangle layers, and repopulate layer below
       var topLayer = HEX.triangle_master_array.length-1;
