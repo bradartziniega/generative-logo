@@ -226,12 +226,12 @@ HEX.updateGeometry = function(){
     
       }
 
+      //change from linear -> exponential easing
       HEX.constants.fraction+=0.01;
     
     }
 
 
-    //change from linear -> exponential easing
    
 
     //if current reveal is done reset animation, switch triangle layers, and repopulate layer below

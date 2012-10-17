@@ -19,3 +19,12 @@ html, body {
 	background: #fff;
 
 }
+
+#logo_title{
+
+	width: 375px;
+
+	display: block;
+    margin: 0 auto;
+    padding-top:35px;
+}
