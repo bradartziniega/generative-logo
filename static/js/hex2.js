@@ -1,17 +1,14 @@
 var HEX = window.HEX || {};
 
-HEX.controller = 0;  // controller handles behaviour of points
+HEX.controller = 0;
 HEX.canvas = 0;
 HEX.drawctx = 0;
 HEX.ctx = 0;
 HEX.buffer = 0;
 HEX.initialized = false;
-
 HEX.poly_points = new Array();
 HEX.padded_points = new Array();
-
 HEX.triangle_master_array = new Array();
-
 
 HEX.constants = {
   padded_distance: 1,
@@ -20,9 +17,7 @@ HEX.constants = {
   number_internal_points: 2,
   initAnim: false,
   fraction: 0,
-  //defaultColors: ["rgba(183,61,129,0.75)","rgba(132,32,92,0.75)","rgba(197,128,177,0.5)","rgba(156,52,110,0.66)","rgba(56,167,123,0.8)","rgba(66,196,144,0.5)","rgba(68,204,192,0.4)","rgba(144,199,203,0.6)","rgba(78,206,155,0.8)"],
   defaultColors: ["rgba(183,61,129,1)","rgba(132,32,92,1)","rgba(197,128,177,1)","rgba(156,52,110,1)","rgba(56,167,123,1)","rgba(66,196,144,1)","rgba(68,204,192,1)","rgba(144,199,203,1)","rgba(78,206,155,1)"],
-
 }
 
 HEX.init = function(){
@@ -32,16 +27,15 @@ HEX.init = function(){
 
   HEX.canvas = document.getElementById("canvas"),
   HEX.ctx = HEX.canvas.getContext( '2d' );
-
   HEX.width = HEX.canvas.width;
   HEX.height = HEX.canvas.height;
 
+  //setting the distance from the edge that internal points lay 
   HEX.constants.padded_distance = HEX.canvas.width/8;
-
   HEX.controller = 1;
 
   for(var i=0;i<HEX.constants.number_master_triangles;i++){
-    HEX.triangle_master_array[i] = {vertices:[], vertices_beneath:[], static_triangles:[] };
+    HEX.triangle_master_array[i] = {vertices:[], static_triangles:[] };
   }
 
   HEX.createPoints();
@@ -55,19 +49,17 @@ HEX.createPoints = function(){
   var angle = 60*Math.PI/180;
   var l = (canvas.height/(2*Math.cos(angle)+1));
 
-  //setting hexagon outline
   for(var i=0;i<HEX.constants.number_master_triangles;i++){
 
     l = (canvas.height/(2*Math.cos(angle)+1));
 
+    //setting hexagon outline
     HEX.triangle_master_array[i].vertices[0] = {x: 0.5*HEX.canvas.width, y: 0};
     HEX.triangle_master_array[i].vertices[1] = {x: 0.5*HEX.canvas.width + l*Math.sin(angle), y: l*Math.cos(angle) };
     HEX.triangle_master_array[i].vertices[2] = {x: 0.5*HEX.canvas.width + l*Math.sin(angle), y: l*Math.cos(angle)+l};
     HEX.triangle_master_array[i].vertices[3] = {x: 0.5*HEX.canvas.width, y: HEX.canvas.height};
     HEX.triangle_master_array[i].vertices[4] = {x: 0.5*HEX.canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)+l};
     HEX.triangle_master_array[i].vertices[5] = {x: 0.5*HEX.canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)};
-
-    HEX.triangle_master_array[i].vertices_beneath =  HEX.triangle_master_array[i].vertices;
 
     HEX.poly_points = [HEX.triangle_master_array[i].vertices[0],HEX.triangle_master_array[i].vertices[1],HEX.triangle_master_array[i].vertices[2],HEX.triangle_master_array[i].vertices[3],HEX.triangle_master_array[i].vertices[4],HEX.triangle_master_array[i].vertices[5]];
 
@@ -95,7 +87,6 @@ HEX.createPoints = function(){
 
     }
 
-    //console.time("triangulate");
     HEX.triangle_master_array[i].triangles = HEX.triangulate(HEX.triangle_master_array[i].vertices);
 
     for(var j=0;j<HEX.triangle_master_array[i].triangles.length;j++){
@@ -104,44 +95,23 @@ HEX.createPoints = function(){
       HEX.triangle_master_array[i].static_triangles[j] = {};
 
     }
-
-    //console.timeEnd("triangulate");
-
   }
 
 };
 
 HEX.createIndividualPoints = function(){
 
+  var i=0;
   var angle = 60*Math.PI/180;
   var l = (canvas.height/(2*Math.cos(angle)+1));
 
   //setting hexagon outline
-  i=0;
-  
-  l = (canvas.height/(2*Math.cos(angle)+1));
-
   HEX.triangle_master_array[i].vertices[0] = {x: 0.5*HEX.canvas.width, y: 0};
   HEX.triangle_master_array[i].vertices[1] = {x: 0.5*HEX.canvas.width + l*Math.sin(angle), y: l*Math.cos(angle) };
   HEX.triangle_master_array[i].vertices[2] = {x: 0.5*HEX.canvas.width + l*Math.sin(angle), y: l*Math.cos(angle)+l};
   HEX.triangle_master_array[i].vertices[3] = {x: 0.5*HEX.canvas.width, y: HEX.canvas.height};
   HEX.triangle_master_array[i].vertices[4] = {x: 0.5*HEX.canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)+l};
   HEX.triangle_master_array[i].vertices[5] = {x: 0.5*HEX.canvas.width - l*Math.sin(angle), y: l*Math.cos(angle)};
-
-  //HEX.triangle_master_array[i].vertices_beneath =  HEX.triangle_master_array[i].vertices;
-
-  HEX.poly_points = [HEX.triangle_master_array[i].vertices[0],HEX.triangle_master_array[i].vertices[1],HEX.triangle_master_array[i].vertices[2],HEX.triangle_master_array[i].vertices[3],HEX.triangle_master_array[i].vertices[4],HEX.triangle_master_array[i].vertices[5]];
-
-
-  //defining internal padded hexagon
-  l = ((canvas.height - 2*HEX.constants.padded_distance)/(2*Math.cos(angle)+1));
-  HEX.padded_points[0] = {x: 0.5*HEX.canvas.width, y: HEX.constants.padded_distance};
-  HEX.padded_points[1] = {x: 0.5*HEX.canvas.width + l*Math.sin(angle), y: HEX.constants.padded_distance+l*Math.cos(angle) };
-  HEX.padded_points[2] = {x: 0.5*HEX.canvas.width + l*Math.sin(angle), y: HEX.constants.padded_distance+l*Math.cos(angle)+l};
-  HEX.padded_points[3] = {x: 0.5*HEX.canvas.width, y: HEX.canvas.height - HEX.constants.padded_distance};
-  HEX.padded_points[4] = {x: 0.5*HEX.canvas.width - l*Math.sin(angle), y: HEX.constants.padded_distance+l*Math.cos(angle)+l};
-  HEX.padded_points[5] = {x: 0.5*HEX.canvas.width - l*Math.sin(angle), y: HEX.constants.padded_distance+l*Math.cos(angle)};  
-  
 
   var numPoints = 0;
 
@@ -151,13 +121,11 @@ HEX.createIndividualPoints = function(){
     while(!HEX.isPointInPoly(HEX.padded_points,curPoint)){
       curPoint = {x: 0.5*HEX.canvas.width-(HEX.canvas.width/2) + Math.floor(Math.random()*(HEX.canvas.width)), y: 0.5*HEX.canvas.height-(HEX.canvas.height/2) + Math.floor(Math.random()*(HEX.canvas.height))};
     }
-
     HEX.triangle_master_array[i].vertices[6+numPoints] = curPoint;
     numPoints++;
-
+  
   }
 
-  //console.time("triangulate");
   HEX.triangle_master_array[i].triangles = HEX.triangulate(HEX.triangle_master_array[i].vertices);
 
   for(var j=0;j<HEX.triangle_master_array[i].triangles.length;j++){
@@ -167,7 +135,6 @@ HEX.createIndividualPoints = function(){
 
   }
 
-  //console.timeEnd("triangulate");  
   HEX.update();
 
 };
@@ -245,30 +212,40 @@ HEX.updateGeometry = function(){
 
   else{
 
-    var topLayer = HEX.triangle_master_array.length-1;
+    var topLayer = 1;
+    
     //this will 'flower' the top most one open
-    for(var i=0;i<HEX.triangle_master_array[topLayer].triangles.length;i++){
-        
+     if(HEX.constants.fraction<=1.0){
+      
+      for(var i=0;i<HEX.triangle_master_array[topLayer].triangles.length;i++){
+
         current_triangle = HEX.triangle_master_array[topLayer].static_triangles[i];
         current_triangle[current_triangle.pointTravelFrom_index].x = HEX.lerp(current_triangle[current_triangle.pointTravelFrom_index].x,current_triangle[current_triangle.pointTravelTo_index].x,HEX.constants.fraction);
         current_triangle[current_triangle.pointTravelFrom_index].y  = HEX.lerp(current_triangle[current_triangle.pointTravelFrom_index].y,current_triangle[current_triangle.pointTravelTo_index].y,HEX.constants.fraction);
     
+      }
+
+      HEX.constants.fraction+=0.01;
+    
     }
+
 
     //change from linear -> exponential easing
-    if(HEX.constants.fraction<1.0){
-      HEX.constants.fraction+=0.01;
-    }
+   
+
+    //if current reveal is done reset animation, switch triangle layers, and repopulate layer below
     else{
       
-      //reset constant fraction, switch triangle layers, and repopulate layer below
-      var topLayer = HEX.triangle_master_array.length-1;
-      //copy lower hex to upper hex (1)
+      var topLayer = 1;
+
+      //copy revealed lower layer to top layer
       $.extend(true,HEX.triangle_master_array[topLayer],HEX.triangle_master_array[0]);
 
-      HEX.initAnim = false;
-      HEX.createIndividualPoints();
-
+      //setTimeout(function(){
+          HEX.initAnim = false;
+          HEX.createIndividualPoints();
+        //},1000);
+      
     }
   }
 };
@@ -280,8 +257,6 @@ HEX.lerp = function(a,b,f){
 HEX.draw = function(){
 
   HEX.ctx.clearRect(0,0,HEX.width,HEX.height);
-
-
   HEX = this;
 
   for(var i=0;i<HEX.triangle_master_array.length;i++){
