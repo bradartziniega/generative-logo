@@ -11,8 +11,10 @@ HEX.triangle_master_array = new Array();
 
 HEX.constants = {
   padded_distance: 1,
+  //defines hexagon
   numVertices: 6,
   number_master_triangles: 2,
+  //work with max of 2, needs each triangle to have a point on the outside of hexagon in order for iris to reveal
   number_internal_points: 2,
   initAnim: false,
   fraction: 0,
@@ -25,13 +27,10 @@ HEX.init = function(){
 
   if(HEX.initialized) return;
   HEX.initialized = true;
-
   HEX.canvas = document.getElementById("canvas"),
   HEX.ctx = HEX.canvas.getContext( '2d' );
   HEX.width = HEX.canvas.width;
   HEX.height = HEX.canvas.height;
-
-  //setting the distance from the edge that internal points lay 
   HEX.constants.padded_distance = HEX.canvas.width/8;
   HEX.controller = 1;
 
@@ -77,41 +76,32 @@ HEX.createPoints = function(){
     var numPoints = 0;
 
     while(numPoints<HEX.constants.number_internal_points){
-
       curPoint = {x: 0, y: 0};
-      while(!HEX.isPointInPoly(HEX.padded_points,curPoint)){
+      while( !HEX.isPointInPoly(HEX.padded_points,curPoint )){
         curPoint = {x: 0.5*HEX.canvas.width-(HEX.canvas.width/2) + Math.floor(Math.random()*(HEX.canvas.width)), y: 0.5*HEX.canvas.height-(HEX.canvas.height/2) + Math.floor(Math.random()*(HEX.canvas.height))};
       }
-
       HEX.triangle_master_array[i].vertices[6+numPoints] = curPoint;
       numPoints++;
-
     }
 
     HEX.triangle_master_array[i].triangles = HEX.triangulate(HEX.triangle_master_array[i].vertices);
 
-    for(var j=0;j<HEX.triangle_master_array[i].triangles.length;j++){
-
+    for( var j=0; j<HEX.triangle_master_array[i].triangles.length; j++ ){
       HEX.triangle_master_array[i].triangles[j].color = HEX.constants.defaultColors[Math.floor(Math.random()*HEX.constants.defaultColors.length)];
       HEX.triangle_master_array[i].static_triangles[j] = {};
       HEX.triangle_master_array[i].triangles[j].pointTravelFrom_index = [];
-
-
     }
   }
 
 };
 
-HEX.createNewLayer = function(){
-
-  //setting lower layer (0)
-  var i=0;
+HEX.refreshHiddenLayer = function(){
  
   //clear object, create blank
-  HEX.triangle_master_array[i] = {vertices:[], static_triangles:[]};
+  HEX.triangle_master_array[0] = {vertices:[], static_triangles:[]};
 
   //setting hexagon outline from constant
-  $.extend(true,HEX.triangle_master_array[i].vertices,HEX.poly_points);
+  $.extend(true,HEX.triangle_master_array[0].vertices,HEX.poly_points);
 
   var numPoints = 0;
 
@@ -122,19 +112,19 @@ HEX.createNewLayer = function(){
     while(!HEX.isPointInPoly(HEX.padded_points,curPoint)){
       curPoint = {x: 0.5*HEX.canvas.width-(HEX.canvas.width/2) + Math.floor(Math.random()*(HEX.canvas.width)), y: 0.5*HEX.canvas.height-(HEX.canvas.height/2) + Math.floor(Math.random()*(HEX.canvas.height))};
     }
-    HEX.triangle_master_array[i].vertices[6+numPoints] = curPoint;
+    HEX.triangle_master_array[0].vertices[6+numPoints] = curPoint;
     numPoints++;
   
   }
 
   //creating delauney triangluation
-  HEX.triangle_master_array[i].triangles = HEX.triangulate(HEX.triangle_master_array[i].vertices);
+  HEX.triangle_master_array[0].triangles = HEX.triangulate(HEX.triangle_master_array[0].vertices);
 
-  for(var j=0;j<HEX.triangle_master_array[i].triangles.length;j++){
+  for(var j=0;j<HEX.triangle_master_array[0].triangles.length;j++){
 
-    HEX.triangle_master_array[i].triangles[j].color = HEX.constants.defaultColors[Math.floor(Math.random()*HEX.constants.defaultColors.length)];
-    HEX.triangle_master_array[i].static_triangles[j] = {};
-    HEX.triangle_master_array[i].triangles[j].pointTravelFrom_index = [];
+    HEX.triangle_master_array[0].triangles[j].color = HEX.constants.defaultColors[Math.floor(Math.random()*HEX.constants.defaultColors.length)];
+    HEX.triangle_master_array[0].static_triangles[j] = {};
+    HEX.triangle_master_array[0].triangles[j].pointTravelFrom_index = [];
 
   }
 
@@ -230,7 +220,7 @@ HEX.updateGeometry = function(){
       $.extend(true,HEX.triangle_master_array[topLayer],HEX.triangle_master_array[0]);
       
       HEX.initAnim = false;
-      HEX.createNewLayer();
+      HEX.refreshHiddenLayer();
     
     }
   }
