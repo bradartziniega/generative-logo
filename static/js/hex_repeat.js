@@ -8,6 +8,7 @@ HEX.initialized = false;
 HEX.poly_points = new Array();
 HEX.padded_points = new Array();
 HEX.triangle_master_array = new Array();
+HEX.placeholder_array = new Array();
 
 HEX.constants = {
   padded_distance: 1,
@@ -18,6 +19,7 @@ HEX.constants = {
   number_internal_points: 2,
   initAnim: false,
   fraction: 0,
+  iteration_number: 0,
   defaultColors: ["rgba(183,61,129,1)","rgba(132,32,92,1)","rgba(197,128,177,1)","rgba(156,52,110,1)","rgba(56,167,123,1)","rgba(66,196,144,1)","rgba(68,204,192,1)","rgba(141,199,203,1)","rgba(78,206,155,1)"
   ,"rgba(177,107,160,1)","rgba(186,117,167,1)","rgba(58,174,163,1)","rgba(151,91,136,1)","rgba(143,25,91,1)","rgba(169,56,119,1)","rgba(144,97,134,1)"],
 
@@ -36,6 +38,7 @@ HEX.init = function(){
 
   for(var i=0;i<HEX.constants.number_master_triangles;i++){
     HEX.triangle_master_array[i] = {vertices:[], static_triangles:[]};
+    HEX.placeholder_array[i] = {vertices:[], static_triangles:[]};
   }
 
   HEX.createPoints();
@@ -91,41 +94,37 @@ HEX.createPoints = function(){
       HEX.triangle_master_array[i].static_triangles[j] = {};
       HEX.triangle_master_array[i].triangles[j].pointTravelFrom_index = [];
     }
+  
+    $.extend(true,HEX.placeholder_array[i],HEX.triangle_master_array[i]);
+
   }
+  //debugger;
 
 };
 
 HEX.refreshHiddenLayer = function(){
  
-  //clear object, create blank
   HEX.triangle_master_array[0] = {vertices:[], static_triangles:[]};
-
-  //setting hexagon outline from constant
   $.extend(true,HEX.triangle_master_array[0].vertices,HEX.poly_points);
 
   var numPoints = 0;
 
-  //adding random internal points
   while(numPoints<HEX.constants.number_internal_points){
-
     curPoint = {x: 0, y: 0};
     while(!HEX.isPointInPoly(HEX.padded_points,curPoint)){
       curPoint = {x: 0.5*HEX.canvas.width-(HEX.canvas.width/2) + Math.floor(Math.random()*(HEX.canvas.width)), y: 0.5*HEX.canvas.height-(HEX.canvas.height/2) + Math.floor(Math.random()*(HEX.canvas.height))};
     }
     HEX.triangle_master_array[0].vertices[6+numPoints] = curPoint;
     numPoints++;
-  
   }
 
   //creating delauney triangluation
   HEX.triangle_master_array[0].triangles = HEX.triangulate(HEX.triangle_master_array[0].vertices);
 
   for(var j=0;j<HEX.triangle_master_array[0].triangles.length;j++){
-
     HEX.triangle_master_array[0].triangles[j].color = HEX.constants.defaultColors[Math.floor(Math.random()*HEX.constants.defaultColors.length)];
     HEX.triangle_master_array[0].static_triangles[j] = {};
     HEX.triangle_master_array[0].triangles[j].pointTravelFrom_index = [];
-
   }
 
   HEX.update();
@@ -146,6 +145,7 @@ HEX.updateGeometry = function(){
   if(!HEX.initAnim){
 
     for(var j=0;j<HEX.triangle_master_array.length;j++){
+      
       for(var i=0;i<HEX.triangle_master_array[j].triangles.length;i++){
 
         current_triangle = HEX.triangle_master_array[j].triangles[i];
@@ -176,8 +176,10 @@ HEX.updateGeometry = function(){
 
         //copy triangle into static triangle to prevent referencing so the triangles can slide open
         $.extend(true,HEX.triangle_master_array[j].static_triangles[i], current_triangle);
+        $.extend(true,HEX.placeholder_array[j].static_triangles[i],current_triangle);
 
       }
+
     }
 
     HEX.constants.fraction = 0;
@@ -198,7 +200,6 @@ HEX.updateGeometry = function(){
 
         for(var j=0;j<current_triangle.pointTravelFrom_index.length;j++){
 
-
           current_triangle[current_triangle.pointTravelFrom_index[j]].x = HEX.lerp(current_triangle[current_triangle.pointTravelFrom_index[j]].x,current_triangle[current_triangle.pointTravelTo_index].x,HEX.constants.fraction);
           current_triangle[current_triangle.pointTravelFrom_index[j]].y = HEX.lerp(current_triangle[current_triangle.pointTravelFrom_index[j]].y,current_triangle[current_triangle.pointTravelTo_index].y,HEX.constants.fraction);
         
@@ -213,14 +214,20 @@ HEX.updateGeometry = function(){
 
     //if current reveal is done reset animation, switch triangle layers, and repopulate layer below
     else{
-      
-      var topLayer = 1;
+      //copy revealed lower layer to top layer & reinitialize hidden layer
+      var previousNumber = HEX.constants.iteration_number;
+      HEX.constants.iteration_number =  (HEX.constants.iteration_number + 1)%2;
+      var currentNumber = HEX.constants.iteration_number;
 
-      //copy revealed lower layer to top layer
-      $.extend(true,HEX.triangle_master_array[topLayer],HEX.triangle_master_array[0]);
-      
+
+      console.log("previous: " + previousNumber + ", current: " + currentNumber);
+      HEX.triangle_master_array[1] = {vertices:[], static_triangles:[]};
+      HEX.triangle_master_array[0] = {vertices:[], static_triangles:[]};
+
+      $.extend(true,HEX.triangle_master_array[1],HEX.placeholder_array[previousNumber]);
+      $.extend(true,HEX.triangle_master_array[0],HEX.placeholder_array[currentNumber]);
       HEX.initAnim = false;
-      HEX.refreshHiddenLayer();
+      HEX.update();
     
     }
   }
