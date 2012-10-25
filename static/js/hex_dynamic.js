@@ -18,7 +18,6 @@ HEX.constants = {
   number_internal_points: 2,
   initAnim: false,
   fraction: 0,
-  interp_number: 0,
   defaultColors: ["rgba(183,61,129,1)","rgba(132,32,92,1)","rgba(197,128,177,1)","rgba(156,52,110,1)","rgba(56,167,123,1)","rgba(66,196,144,1)","rgba(68,204,192,1)","rgba(141,199,203,1)","rgba(78,206,155,1)"
   ,"rgba(177,107,160,1)","rgba(186,117,167,1)","rgba(58,174,163,1)","rgba(151,91,136,1)","rgba(143,25,91,1)","rgba(169,56,119,1)","rgba(144,97,134,1)"],
 
@@ -176,7 +175,6 @@ HEX.updateGeometry = function(){
     }
 
     HEX.constants.fraction = 0;
-    HEX.constants.interp_number = 0;
     HEX.initAnim = true;
 
   }
@@ -196,20 +194,16 @@ HEX.updateGeometry = function(){
 
         for(var j=0;j<current_triangle.pointTravelFrom_index.length;j++){
 
+          //in Hex.lerp() have to use const_triangle in order to not self-reference chaning travel_from value  
+          current_triangle[current_triangle.pointTravelFrom_index[j]].x = HEX.easeInOutQuint(HEX.constants.fraction,const_tri[current_triangle.pointTravelFrom_index[j]].x,const_tri[current_triangle.pointTravelTo_index].x - const_tri[current_triangle.pointTravelFrom_index[j]].x,1); 
+          current_triangle[current_triangle.pointTravelFrom_index[j]].y = HEX.easeInOutQuint(HEX.constants.fraction,const_tri[current_triangle.pointTravelFrom_index[j]].y,const_tri[current_triangle.pointTravelTo_index].y - const_tri[current_triangle.pointTravelFrom_index[j]].y,1);  
           
-          //in Hex.lerp() have to use const_triangle in order to not self-reference chaning travel_from value
-          current_triangle[current_triangle.pointTravelFrom_index[j]].x = HEX.lerp(const_tri[current_triangle.pointTravelFrom_index[j]].x,current_triangle[current_triangle.pointTravelTo_index].x,HEX.constants.interp_number);
-          current_triangle[current_triangle.pointTravelFrom_index[j]].y = HEX.lerp(const_tri[current_triangle.pointTravelFrom_index[j]].y,current_triangle[current_triangle.pointTravelTo_index].y,HEX.constants.interp_number);
-          
-        
-
         }
       
       }
 
-      HEX.constants.fraction+=0.01;
-      HEX.constants.interp_number = Math.pow(HEX.constants.fraction,0.4);
-
+      HEX.constants.fraction+=0.015;
+      
     }
 
     //if current reveal is done reset animation, switch triangle layers, and repopulate layer below
@@ -227,6 +221,21 @@ HEX.updateGeometry = function(){
 HEX.lerp = function(a,b,f){
   return (1-f)*a + f*b;
 }
+
+HEX.easeInOutCubic = function (t, b, c, d) {
+  t /= d/2;
+  if (t < 1) return c/2*t*t*t + b;
+  t -= 2;
+  return c/2*(t*t*t + 2) + b;
+};
+
+HEX.easeInOutQuint = function (t, b, c, d) {
+  t /= d/2;
+  if (t < 1) return c/2*t*t*t*t*t + b;
+  t -= 2;
+  return c/2*(t*t*t*t*t + 2) + b;
+};
+  
   
 HEX.draw = function(){
 
