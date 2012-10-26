@@ -202,7 +202,7 @@ HEX.updateGeometry = function(){
       
       }
 
-      HEX.constants.fraction+=0.015;
+      HEX.constants.fraction+=0.01;
       
     }
 
