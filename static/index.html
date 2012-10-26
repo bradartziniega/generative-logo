@@ -12,6 +12,9 @@
     <script type="text/javascript" src="js/hex_dynamic.js"></script>
     <script type = "text/javascript">
 
+    var timerID = 0;
+    var pauseTimer = 5000;
+
     window.requestAnimFrame = (function(){   
       return window.requestAnimationFrame  ||    
       window.webkitRequestAnimationFrame ||    
@@ -25,8 +28,21 @@
      })();
 
     function animate(){
+    
       requestAnimFrame( animate );
-      HEX.update();
+
+      if(HEX.controller){
+        HEX.update();
+      }
+      else{
+        if(!timerID){
+          timerID = setTimeout(function(){
+            HEX.setController();
+            timerID = 0;
+          },pauseTimer);
+        }
+      }
+    
     };
 
     $(function(){

@@ -1,6 +1,6 @@
 var HEX = window.HEX || {};
 
-HEX.controller = 0;
+HEX.controller = 1;
 HEX.canvas = 0;
 HEX.drawctx = 0;
 HEX.ctx = 0;
@@ -41,8 +41,6 @@ HEX.init = function(){
   HEX.createPoints();
 
 };
-
-
 
 HEX.createPoints = function(){
 
@@ -120,6 +118,7 @@ HEX.refreshHiddenLayer = function(){
     HEX.triangle_master_array[0].triangles[j].pointTravelFrom_index = [];
   }
 
+
   HEX.update();
 
 };
@@ -129,8 +128,13 @@ HEX.update = function() {
   if(HEX.controller) {
     HEX.updateGeometry();
     HEX.draw();
-  }
+  } 
+
 };
+
+HEX.setController = function(){
+  HEX.controller = 1;
+}
 
 //update the triangles being drawn
 HEX.updateGeometry = function(){
@@ -208,14 +212,19 @@ HEX.updateGeometry = function(){
 
     //if current reveal is done reset animation, switch triangle layers, and repopulate layer below
     else{
+
       //copy revealed lower layer to top layer & reinitialize hidden layer
       $.extend(true,HEX.triangle_master_array[1],HEX.triangle_master_array[0]);
       HEX.initAnim = false;
       HEX.refreshHiddenLayer();
-    
+      HEX.controller = 0;
+      //setTimeout(HEX.refreshHiddenLayer(),10000);
+
     }
 
   }
+
+
 };
 
 HEX.lerp = function(a,b,f){
